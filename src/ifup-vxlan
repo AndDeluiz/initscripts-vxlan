@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# VXLAN Network Interface Configuration
+#
+# This program was originally written by Eugene Paniot (https://github.com/eugenepaniot/initscripts-vxlan).
+# Updated by Anderson Deluiz (https://github.com/anddeluiz/initscripts-vxlan).
+#
+# Contains code provided by Red Hat and available by initscripts RPM package.
+#
+# Copyright (c) 1996-2014 Red Hat, Inc. all rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+. /etc/init.d/functions
+
+cd /etc/sysconfig/network-scripts
+. ./network-functions
+
+[ -f ../network ] && . ../network
+
+CONFIG=${1}
+
+need_config "${CONFIG}"
+
+source_config
+
+# load the module associated with that device
+is_available vxlan
+
+# check if PHYS_DEV is up
+/sbin/ip address show dev ${PHYS_DEV} up > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    /etc/sysconfig/network-scripts/ifup ${PHYS_DEV}
+    if [ $? -ne 0 ]; then
+       exit 127
+    fi
+fi
+
+# vxlan specific options
+if [ -n ${VXLAN_MODE} ]; then
+    VXLAN_MODE=${VXLAN_MODE,,}
+    case ${VXLAN_MODE} in
+        "unicast")
+            if [ -z ${LOCAL_ADDR} ]; then
+               # get PHYS_DEV IP address
+               LOCAL_ADDR=$(/sbin/ip addr show dev ${PHYS_DEV} | awk '/inet / {split($2,_," "); split (_[1],_,"/"); print _[1]}')
+            fi
+
+            if [ -z ${REMOTE_ADDR} ]; then
+                echo "ERROR: No remote IP address provided. Check REMOTE_ADDR parameter."
+                exit 1
+           fi
+
+           VXLAN_OPTIONS="${VXLAN_OPTIONS} local ${LOCAL_ADDR} remote ${REMOTE_ADDR}"
+        ;;
+        "multicast")
+           echo "Multicast configuration not yet implemented by ifup-vxlan script."
+           exit 127
+        ;;
+        *)
+            echo "ERROR: Invalid VXLAN mode. Check VXLAN_MODE parameter."
+            exit 2
+        ;;
+    esac 
+fi
+
+if [ -z ${VNI} ]; then
+    echo "ERROR: Invalid VNI. Check VNI parameter."
+    exit 3
+fi
+
+/sbin/ip link add ${DEVICE} type vxlan id ${VNI} dstport ${DSTPORT:-8472} dev ${PHYS_DEV} ttl ${TTL:-255} ${VXLAN_OPTIONS} ${OPTIONS}
+
+exec /etc/sysconfig/network-scripts/ifup-eth ${DEVICE}
