@@ -25,3 +25,8 @@ Sample configuration for a `vxlan` interface:
 Currently it supports only unicast mode with one peer.
 
 This is a fork from https://github.com/eugenepaniot/initscripts-vxlan.
+
+<h1>To Do</h1>
+
+  * Support multicast mode
+  * Allow more than one remote address
