@@ -1,4 +1,4 @@
-<h1>Description
+<h1>Description</h1>
 
 The initscripts package contains basic system scripts used during a boot of the system. It also contains scripts which activate and deactivate most network interfaces.
 Place these scripts in `/etc/sysconfig/network-scripts` on your RedHat/CentOS/Fedora system.
