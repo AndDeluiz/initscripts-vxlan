@@ -1,4 +1,4 @@
-<h1>Description</h1>
+# Description
 
 The initscripts package contains basic system scripts used during a boot of the system. It also contains scripts which activate and deactivate most network interfaces.
 
@@ -26,7 +26,7 @@ Currently it supports only unicast mode with one peer.
 
 This is a fork from https://github.com/eugenepaniot/initscripts-vxlan.
 
-<h1>To Do</h1>
+# To Do
 
-  * Support multicast mode
-  * Allow more than one remote address
+- [ ] Support multicast mode.
+- [ ] Allow more than one remote address when using unicast mode.
