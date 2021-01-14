@@ -1,17 +1,28 @@
-Place these scripts in `/etc/sysconfig/network-scripts` on your
-RedHat/CentOS/Fedora system.
+<h1>Description
+
+The initscripts package contains basic system scripts used during a boot of the system. It also contains scripts which activate and deactivate most network interfaces.
+Place these scripts in `/etc/sysconfig/network-scripts` on your RedHat/CentOS/Fedora system.
+
+This package extends initscripts package by supporting VXLAN interfaces.
+
+You can choose to build an RPM package or just place these scripts in `/etc/sysconfig/network-scripts` on your RedHat/CentOS/Fedora system.
 
 Sample configuration for a `vxlan` interface:
 
-	TYPE=VXLAN
-	DEVICE=vxlan1000
+	TYPE=vxlan
+	DEVICE=vxlan1
+	VNI=1
+	VXLAN_MODE=unicast
 	BOOTPROTO=none
 	ONBOOT=yes
 	TTL=255
-	VNI=1000
-	DSTPORT=4789
-	LOCAL_ADDR="192.168.1.1"
-	PHYS_DEV="eth0"
+	PHYS_DEV=ens3
+	LOCAL_ADDR=192.168.0.1
+	REMOTE_ADDR=192.168.0.2
+	IPADDR=192.168.255.1
+	NETMASK=255.255.255.248
 	OPTIONS="nolearning"
-	BRIDGE="br1000"
 
+Currently it supports only unicast mode with one peer.
+
+This is a fork from https://github.com/eugenepaniot/initscripts-vxlan.
